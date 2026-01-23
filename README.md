@@ -28,24 +28,82 @@ Copy the `skills/webgpu-threejs-tsl` folder to:
 - **Global**: `~/.claude/skills/`
 - **Project**: `<project>/.claude/skills/`
 
-## Skill Contents
+## Skill Structure
 
 ```
 skills/webgpu-threejs-tsl/
-└── SKILL.md          # Complete TSL and WebGPU documentation
+├── SKILL.md                    # Entry point with overview
+├── REFERENCE.md                # Quick reference cheatsheet
+├── docs/
+│   ├── core-concepts.md        # Types, operators, uniforms, control flow
+│   ├── materials.md            # Node materials and properties
+│   ├── compute-shaders.md      # GPU compute documentation
+│   ├── post-processing.md      # Built-in and custom effects
+│   └── wgsl-integration.md     # Custom WGSL functions
+├── examples/
+│   ├── basic-setup.js          # Minimal WebGPU project
+│   ├── custom-material.js      # Custom shader material
+│   ├── particle-system.js      # GPU compute particles
+│   ├── post-processing.js      # Effect pipeline
+│   └── earth-shader.js         # Complete Earth with atmosphere
+└── templates/
+    ├── webgpu-project.js       # Starter project template
+    └── compute-shader.js       # Compute shader template
 ```
 
 ## Topics Covered
 
-- **WebGPU Setup**: Renderer initialization, scene setup
-- **TSL Syntax**: Types, vectors, uniforms, operators
-- **Node Materials**: All material types and properties
-- **Custom Functions**: `Fn()` pattern for reusable shader logic
-- **Control Flow**: Conditionals, loops, discard
-- **Texturing**: Basic and advanced texture operations
-- **Compute Shaders**: GPU compute with instanced arrays
-- **Post-Processing**: Built-in effects and custom pipelines
-- **WGSL Integration**: Custom WGSL function injection
+### Core Concepts
+- Types and constructors (float, vec2, vec3, vec4, color, uniform)
+- Vector swizzling
+- Operators and math functions
+- Control flow (If, Loop, Fn)
+- Time and animation
+
+### Materials
+- All node material types
+- Material properties (color, roughness, metalness, etc.)
+- Physical material features (clearcoat, transmission, iridescence)
+- Vertex displacement
+
+### Compute Shaders
+- Instanced array buffers
+- Parallel physics simulation
+- Particle systems
+- Atomic operations and barriers
+
+### Post-Processing
+- Built-in effects (bloom, blur, FXAA, DOF)
+- Custom effects with Fn()
+- Effect chaining
+- Multiple render targets
+
+### WGSL Integration
+- Custom WGSL functions with wgslFn()
+- Hybrid TSL/WGSL approaches
+- Performance optimization
+
+## Quick Example
+
+```javascript
+import * as THREE from 'three/webgpu';
+import { color, time, oscSine, normalWorld, cameraPosition, positionWorld, Fn, float } from 'three/tsl';
+
+// WebGPU renderer
+const renderer = new THREE.WebGPURenderer();
+await renderer.init();
+
+// TSL material with animated fresnel
+const material = new THREE.MeshStandardNodeMaterial();
+
+material.colorNode = color(0x0066ff);
+
+material.emissiveNode = Fn(() => {
+  const viewDir = cameraPosition.sub(positionWorld).normalize();
+  const fresnel = float(1).sub(normalWorld.dot(viewDir).saturate()).pow(3);
+  return color(0x00ffff).mul(fresnel).mul(oscSine(time));
+})();
+```
 
 ## Resources
 
